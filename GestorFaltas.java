@@ -10,10 +10,12 @@ import java.util.Scanner;
  *
  */
 public class GestorFaltas {
-     
+    private Estudiante[] curso;
+    private int pos;
 
     public GestorFaltas(int n) {
-         
+        curso = new Estudiante[n];
+        pos = 0;
     }
 
     /**
@@ -21,7 +23,7 @@ public class GestorFaltas {
      * false en otro caso
      */
     public boolean cursoCompleto() {
-        return false;
+        return pos == curso.length;
     }
 
     /**
@@ -37,10 +39,32 @@ public class GestorFaltas {
      *    
      */
     public void addEstudiante(Estudiante nuevo) {
-        
-
+        // if (pos == 0) {
+        // curso[0] = nuevo;
+        // pos++;
+        // }
+        if (!cursoCompleto()) {
+            int aux = buscarEstudiante(nuevo.getApellidos());
+            if (aux == -1) {
+                int n = 0;
+                while (n < pos && nuevo.getApellidos().compareToIgnoreCase(curso[n].getApellidos()) > 0) {
+                    n++;
+                }
+                for (int i = pos; i > n; i--) {
+                    curso[i] = curso[i - 1];
+                }
+                curso[n] = nuevo;
+                pos++;
+            }
+            else {
+                System.out.println("Ya está registrado el estudiante " +
+                    nuevo.getApellidos() + " " + nuevo.getNombre() + " en el curso.");
+            }
+        }
+        else {
+            System.out.println("El curso está completo.");
+        }
     }
-
 
     /**
      * buscar un estudiante por sus apellidos
@@ -51,8 +75,23 @@ public class GestorFaltas {
      *  
      */
     public int buscarEstudiante(String apellidos) {
-         
-        return 0;
+        int izq = 0;
+        int der = pos - 1;
+        int n;
+        while (izq <= der && izq >= 0) {
+            n = (izq + der) / 2;
+            String str = curso[n].getApellidos();
+            if (apellidos.equalsIgnoreCase(str)) {
+                return n;
+            }
+            else if (apellidos.compareToIgnoreCase(str) < 0) {
+                der = n - 1;
+            }
+            else {
+                izq = n +    1;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -61,8 +100,13 @@ public class GestorFaltas {
      *  
      */
     public String toString() {
-        
-        return null;
+        StringBuilder sb = new StringBuilder();
+        sb.append("Relación de estudiantes (" + pos + ")\n");
+        for (int i = 0; i < pos; i++) {
+            sb.append(curso[i].toString());
+            sb.append("------------------\n");
+        }
+        return sb.toString();
 
     }
 
@@ -75,8 +119,11 @@ public class GestorFaltas {
      *  justificar también)
      */
     public void justificarFaltas(String apellidos, int faltas) {
-         
-
+        int aux = buscarEstudiante(apellidos);
+        curso[aux].justificar(faltas);
+        System.out.println("Se han justificado " + faltas +
+            " faltas a " + curso[aux].getApellidos() + ", " +
+            curso[aux].getNombre());
     }
 
     /**
@@ -85,8 +132,17 @@ public class GestorFaltas {
      * Método de selección directa
      */
     public void ordenar() {
-        
-
+        for (int i = 0; i < curso.length; i++) {
+            int max = i;
+            for (int j = i + 1; j < pos; j++) {
+                if (curso[j].getFaltasNoJustificadas() > curso[max].getFaltasNoJustificadas()) {
+                    max = j;
+                }
+            }
+            Estudiante aux = curso[max];
+            curso[max] = curso[i];
+            curso[i] = aux;
+        }
     }
 
     /**
@@ -94,8 +150,32 @@ public class GestorFaltas {
      * aquellos estudiantes con 30 o más faltas injustificadas
      */
     public void anularMatricula() {
-         
-
+        boolean encontrado = false;
+        int izq = 0;
+        int der = pos - 1;
+        int n = 0;
+        while (izq <= der && !encontrado) {
+            n = (izq + der) / 2;
+            String str = curso[n].getApellidos();
+            if (curso[n].getFaltasNoJustificadas() == 30) {
+                if (curso[n - 1].getFaltasNoJustificadas() < 30) {
+                    encontrado = true;
+                }
+                else {
+                    der = n - 1;
+                }
+            }
+            else if (curso[n].getFaltasNoJustificadas() < 30) {
+                der = n - 1;
+            }
+            else {
+                izq = n + 1;
+            }
+        }
+        for (int i = n; i < pos - 1; i++) {
+            curso[i - n] = curso[i + 1];
+        }
+        pos -= n + 1;
     }
 
     /**

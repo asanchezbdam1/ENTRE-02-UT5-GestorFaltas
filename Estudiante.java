@@ -17,10 +17,19 @@ public class Estudiante {
      *  
      */
     public Estudiante(String lineaDatos) {
-         
-
+        String[] aux = lineaDatos.split(SEPARADOR);
+        String auxn = aux[0];
+        this.apellidos = aux[1].toUpperCase().trim();
+        this.faltasNoJustificadas = Integer.parseInt(aux[2].trim());
+        this.faltasJustificadas = Integer.parseInt(aux[3].trim());
+        aux = auxn.trim().split("\\s+");
+        auxn = "";
+        for (int i = 0; i < aux.length - 1; i++) {
+            auxn += aux[i].toUpperCase().charAt(0) + ". ";
+        }
+        auxn += aux[aux.length - 1].toUpperCase().charAt(0) + aux[aux.length - 1].substring(1);
+        this.nombre = auxn;
     }
-
 
     /**
      * accesor para el nombre completo
@@ -93,13 +102,31 @@ public class Estudiante {
      * (ver enunciado)
      */
     public String toString() {
-        
-        return null;
-
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%-25s","Apellidos y Nombre:"));
+        sb.append(apellidos + ", " + nombre + "\n");
+        sb.append(String.format("%-25s","Faltas No Justificadas:"));
+        sb.append(faltasNoJustificadas + "\n");
+        sb.append(String.format("%-25s","Faltas Justificadas:"));
+        sb.append(faltasJustificadas + "\n");
+        sb.append(String.format("%-25s","Apercibimientos:"));
+        if (faltasNoJustificadas > 10) {
+            sb.append("DIEZ ");
+        }
+        if (faltasNoJustificadas > 20) {
+            sb.append("VEINTE ");
+        }
+        if (faltasNoJustificadas > 30) {
+            sb.append("TREINTA ");
+        }
+        if (faltasNoJustificadas < 10) {
+            sb.append("Sin apercibimientos");
+        }
+        sb.append("\n");
+        return sb.toString();
     }
 
-
-     public static void main(String[] args) {
+    public static void main(String[] args) {
         Estudiante e1 = new Estudiante("  ander ibai  ,  Ruiz Sena , 12, 23");
         System.out.println(e1);
         System.out.println();
@@ -113,7 +140,6 @@ public class Estudiante {
         Estudiante e4 = new Estudiante("julen, Duque Puyal, 5, 55");
         System.out.println(e4);
         System.out.println();
-        
 
         System.out.println("---------------------------------");
         e1.justificar(3);
